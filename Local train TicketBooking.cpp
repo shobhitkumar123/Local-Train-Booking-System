@@ -1,8 +1,10 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cctype> // for isdigit
 
 using namespace std;
+
 class Train {
 public:
     int trainNumber;
@@ -24,6 +26,7 @@ public:
         cout << "Available Seats: " << availableSeats << endl;
     }
 };
+
 class Ticket {
 public:
     int ticketID;
@@ -42,6 +45,7 @@ public:
         bookedTrain->displayTrainInfo();
     }
 };
+
 class TicketingSystem {
 private:
     vector<Train> trains;
@@ -56,7 +60,7 @@ public:
 
     void bookTicket(string passengerName, int trainNumber) {
         bool found = false;
-        for (auto &train : trains) {
+        for (auto& train : trains) {
             if (train.trainNumber == trainNumber && train.availableSeats > 0) {
                 Ticket newTicket(ticketIDCounter++, passengerName, &train);
                 tickets.push_back(newTicket);
@@ -70,6 +74,7 @@ public:
             cout << "No available seats on the train or train number not found." << endl;
         }
     }
+
     void cancelTicket(int ticketID) {
         bool found = false;
         for (auto it = tickets.begin(); it != tickets.end(); ++it) {
@@ -85,11 +90,12 @@ public:
             cout << "Ticket with ID " << ticketID << " not found." << endl;
         }
     }
+
     void viewTickets() {
         if (tickets.empty()) {
             cout << "No tickets booked." << endl;
         } else {
-            for (auto &ticket : tickets) {
+            for (auto& ticket : tickets) {
                 ticket.displayTicketInfo();
                 cout << endl;
             }
@@ -100,7 +106,7 @@ public:
         if (trains.empty()) {
             cout << "No trains available." << endl;
         } else {
-            for (auto &train : trains) {
+            for (auto& train : trains) {
                 train.displayTrainInfo();
                 cout << endl;
             }
@@ -112,10 +118,12 @@ int main() {
     TicketingSystem system;
 
     system.addTrain(101, "Express 101", "Kanpur", 100);
-    system.addTrain(102, "SuperFast 102", "Dehli", 50);
+    system.addTrain(102, "SuperFast 102", "Delhi", 50);
     system.addTrain(103, "Local 103", "Kannauj", 200);
 
-    int choice;
+    string input;
+    int choice = 0;
+
     do {
         cout << "\nLocal Train Ticketing System Menu:\n";
         cout << "1. View All Trains\n";
@@ -124,7 +132,13 @@ int main() {
         cout << "4. View All Tickets\n";
         cout << "5. Exit\n";
         cout << "Enter your choice: ";
-        cin >> choice;
+        cin >> input;
+
+        if (input.length() == 1 && isdigit(input[0])) {
+            choice = input[0] - '0';
+        } else {
+            choice = -1;
+        }
 
         switch (choice) {
             case 1: {
@@ -137,15 +151,26 @@ int main() {
                 cout << "Enter Passenger Name: ";
                 cin.ignore();
                 getline(cin, passengerName);
+
                 cout << "Enter Train Number to Book: ";
-                cin >> trainNumber;
+                while (!(cin >> trainNumber)) {
+                    cout << "Invalid input. Please enter a valid train number: ";
+                    cin.clear();
+                    cin.ignore(10000, '\n');
+                }
+
                 system.bookTicket(passengerName, trainNumber);
                 break;
             }
             case 3: {
                 int ticketID;
                 cout << "Enter Ticket ID to Cancel: ";
-                cin >> ticketID;
+                while (!(cin >> ticketID)) {
+                    cout << "Invalid input. Please enter a valid ticket ID: ";
+                    cin.clear();
+                    cin.ignore(10000, '\n');
+                }
+
                 system.cancelTicket(ticketID);
                 break;
             }
@@ -158,9 +183,15 @@ int main() {
                 break;
             }
             default:
-                cout << "Invalid choice! Please try again.\n";
+                cout << "Invalid input! Please enter a number between 1 and 5.\n";
         }
+
     } while (choice != 5);
 
     return 0;
 }
+
+
+
+
+
